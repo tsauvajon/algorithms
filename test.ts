@@ -14,6 +14,12 @@ interface ReceivedMessage extends MessageEvent {
   data: SentMessage
 }
 
+interface TestInput {
+  elems: number,
+  maxVal: number,
+  time: number
+}
+
 function fn2URL(fn: Function) {
   var blob = new Blob([`(${fn.toString()})()`], { type: 'application/javascript' })
   return URL.createObjectURL(blob)
@@ -23,19 +29,66 @@ function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function testWithWorkers(sort: string | Function, elems: number, maxVal: number) {
-  // var sortFn = typeof sort === 'string' ? window[sort] : sort
+var benchmarkInputs : Array<TestInput> = [
+  {
+    elems: 10,
+    maxVal: 100,
+    time: 1000
+  }, 
+  {
+    elems: 1000,
+    maxVal: 1000,
+    time: 1000
+  }, 
+  {
+    elems: 100000,
+    maxVal: 1000,
+    time: 60 * 1000
+  }, 
+  {
+    elems: 1000000,
+    maxVal: 1000000000,
+    time: 60 * 1000
+  }
+]
+
+var benchmarkFns: Array<string | Function> = ['quickSort', 'bubbleSort']
+
+var benchmark = async (sort: string | Function) => {
+  for (var i = 0; i < benchmarkInputs.length; i++) {
+    var { elems, maxVal, time } = benchmarkInputs[i]
+    await testWithWorkers(sort, elems, maxVal, time)
+  }
+}
+
+var benchmarkAll = async () => {
+  for (var i = 0; i < benchmarkFns.length; i++) {
+    try {
+      await benchmark(benchmarkFns[i])
+    } catch (e) {
+      console.error(e)
+    }
+  }
+}
+
+/*
+  testWithWorkers will run the sort function with a worker, and kill it if it
+  takes too much time.
+
+  sort: function or function name
+  elems: number of elements in the test array
+  maxVal: maximum value of the random numbers in the test array
+  time: number of ms before test fails
+*/
+async function testWithWorkers(sort: string | Function, elems: number = 40, maxVal: number = 10000, time: number = 60 * 1000) {
   var sortName = typeof sort === 'string' ? sort : sort.name
   
-  elems = elems || 40
-  maxVal = maxVal || 10000
-
   var worker = new Worker(fn2URL(run))
 
   var timeout = setTimeout(() => {
     worker.terminate()
     throw new Error(`timeout of 10 sec reached for ${sortName} [${elems} elems, values from 0 to ${maxVal}]`)
-  }, 10 * 1000)
+  }, time)
 
   var baseURL = window.location.href.split('/dist/')[0] + '/dist'
 
@@ -64,14 +117,25 @@ var run = () => {
     error = 1
   }
 
+  interface MessageArgs extends MessageEvent {
+    data: {
+      sort: string
+      elems: number
+      maxVal: number
+      baseURL: string
+    }
+  }
+
   var genRandomArray = (elems: number, maxVal: number) => Array.from({ length: elems }, () => Math.floor(Math.random() * maxVal))
 
-  // doesn't work with a second string parameter
+  // doesn't work (at all) with a second string parameter
   // we override the definition with the actual one, using only one parameter
   // @ts-ignore: type definition is wrong
   var postMessage = (payload: SentMessage) => self.postMessage(payload)
 
-  self.onmessage = (event) => {
+  // generates a random shuffled array and sorts it with a sort function given
+  // as the first parameter. It checks that the sorted array is, indeed, sorted.
+  self.onmessage = (event: MessageArgs) => {
     var { sort, elems, maxVal, baseURL } = event.data
 
     var files = [
@@ -81,9 +145,6 @@ var run = () => {
 
     files.forEach(f => console.log(`${baseURL}/${f}`))
     files.forEach(f => importScripts(`${baseURL}/${f}`))
-  
-    elems = elems || 40
-    maxVal = maxVal || 10000
 
     var sortFn = self[sort]
 
