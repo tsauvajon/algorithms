@@ -171,7 +171,9 @@ var run = () => {
 
     var files = {
       quickSort: 'quicksort.js',
-      bubbleSort: 'bubblesort.js'
+      bubbleSort: 'bubblesort.js',
+      insertionSort: 'insertionsort.js',
+      selectionSort: 'selectionsort.js'
     }
 
     importScripts(`${baseURL}/${files[sort]}`)
