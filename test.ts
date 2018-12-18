@@ -29,26 +29,33 @@ function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+var sec = 1000
+
 var benchmarkInputs : Array<TestInput> = [
   {
     elems: 10,
     maxVal: 100,
-    time: 1000
-  }, 
-  {
+    time: 1 * sec
+  }, {
     elems: 1000,
     maxVal: 1000,
-    time: 1000
-  }, 
-  {
+    time: 1 * sec
+  }, {
     elems: 100000,
-    maxVal: 1000,
-    time: 60 * 1000
-  }, 
-  {
+    maxVal: 1000000,
+    time: 30 * sec
+  }, {
+    elems: 100000,
+    maxVal: 10,
+    time: 30 * sec
+  }, {
     elems: 1000000,
-    maxVal: 1000000000,
-    time: 60 * 1000
+    maxVal: 10000,
+    time: 60 * sec
+  }, {
+    elems: 1000000,
+    maxVal: 10,
+    time: 60 * sec
   }
 ]
 
@@ -143,7 +150,6 @@ var run = () => {
       'bubblesort.js'
     ]
 
-    files.forEach(f => console.log(`${baseURL}/${f}`))
     files.forEach(f => importScripts(`${baseURL}/${f}`))
 
     var sortFn = self[sort]
