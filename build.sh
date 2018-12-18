@@ -1,4 +1,4 @@
 rm -rf dist/*
 
 tsc
-cp sort/*.js tests/test.html dist
+cp sort/*.js tests/*.js tests/test.html dist

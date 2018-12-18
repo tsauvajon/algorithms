@@ -28,4 +28,4 @@ function quickSort(array) {
   return array;
 }
 
-var testQuickSort = () => testWithWorkers(quickSort)
+var testQuick = () => simpleTest(quickSort)

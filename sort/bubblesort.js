@@ -9,4 +9,4 @@ function bubbleSort(array) {
   return array;
 }
 
-var testBubbleSort = () => testWithWorkers(bubbleSort)
+var testBubble = () => simpleTest(bubbleSort)
