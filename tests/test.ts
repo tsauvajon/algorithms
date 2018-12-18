@@ -78,6 +78,7 @@ var benchmarkAll = async () => {
     console.log(`benchmarking ${benchmarkFns[i]}`)
     await benchmark(benchmarkFns[i])
   }
+  console.log('done !')
 }
 
 /*
