@@ -4,6 +4,6 @@
         "sourceMap": true,
         "target": "ES6"
     },
-    "include": ["*.ts"],
+    "include": ["tests/*.ts"],
     "exclude": ["**/*.js", "dist"]
 }

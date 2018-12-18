@@ -7,7 +7,8 @@ enum Results {
 
 interface SentMessage {
   result: Results,
-  message: string
+  message: string,
+  duration: number
 }
 
 interface ReceivedMessage extends MessageEvent {
@@ -108,7 +109,8 @@ async function testWithWorkers(sort: string | Function, elems: number = 40, maxV
   var timeout = setTimeout(() => {
     data = {
       result: Results.error,
-      message: `timeout of ${Math.floor(time / 1000)} sec reached for ${sortName} [${elems} - ${maxVal}]`
+      message: `timeout reached`,
+      duration: time
     }
   }, time)
 
@@ -125,14 +127,16 @@ async function testWithWorkers(sort: string | Function, elems: number = 40, maxV
 
   worker.terminate()
 
-  var { result, message } = data
+  var { result, message, duration } = data
 
   switch (result) {
     case Results.done:
-      console.log(message)
+      var msg = `${sortName} [${elems}] passed in ${duration} ms [range ${maxVal}]`
+      console.log(msg)
       break;
     case Results.error:
-      throw new Error(message)
+      var msg = `${sortName} [${elems}] failed after ${duration} ms [range ${maxVal}]: ${message}`
+      throw new Error(msg)
   }
 }
 
@@ -182,18 +186,23 @@ var run = () => {
     try {
       sortFn(sorted)
     } catch (e) {
+      var end = performance.now()
       var payload: SentMessage = {
         result: Results.error,
-        message: `threw the exception ${e}`
+        message: `threw the exception ${e}`,
+        duration: end - start
       }
       return postMessage(payload)
     }
+
     var end = performance.now()
+    var duration = end - start
 
     if (!Array.isArray(sorted)) {
       var payload: SentMessage = {
         result: Results.error,
-        message: `doesn't return an array`
+        message: `doesn't return an array`,
+        duration
       }
       return postMessage(payload)
     }
@@ -201,7 +210,8 @@ var run = () => {
     if (shuffled.length !== sorted.length) {
       var payload: SentMessage = {
         result: Results.error,
-        message: `the array changed length`
+        message: `the array changed length`,
+        duration
       }
       return postMessage(payload)
     }
@@ -210,7 +220,8 @@ var run = () => {
       if (sorted[i] > sorted[i+1]) {
         var payload: SentMessage = {
           result: Results.error,
-          message: `this array isn't sorted !`
+          message: `this array isn't sorted !`,
+          duration
         }
         return postMessage(payload)
       }
@@ -218,7 +229,8 @@ var run = () => {
 
     var payload: SentMessage = {
       result: Results.done,
-      message: `${sortName} passed in ${end - start} ms [${elems} - ${maxVal}]`
+      message: `${sortName} passed in ${duration} ms [${elems} - ${maxVal}]`,
+      duration
     }
 
     postMessage(payload)
