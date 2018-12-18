@@ -9,11 +9,4 @@ function bubbleSort(array) {
   return array;
 }
 
-var testBubblesort = () => test(bubbleSort)
-var benchmarkBubblesort = () => benchmark(bubbleSort)
-
-if (window.benchmarkFns) {
-  window.benchmarkFns = [...window.benchmarkFns, bubbleSort]
-} else {
-  window.benchmarkFns = [bubbleSort]
-}
+var testBubbleSort = () => testWithWorkers(bubbleSort)

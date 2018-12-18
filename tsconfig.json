@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "outFile": "dist/test.js",
+        "sourceMap": true,
+        "target": "ES6"
+    },
+    "include": ["*.ts"],
+    "exclude": ["**/*.js", "dist"]
+}
