@@ -44,23 +44,23 @@ var benchmarkInputs : Array<TestInput> = [
   }, {
     elems: 10000,
     maxVal: 1000000,
-    time: 30 * sec
+    time: 10 * sec
   }, {
     elems: 10000,
     maxVal: 10,
-    time: 30 * sec
+    time: 10 * sec
   }, {
     elems: 1000000,
     maxVal: 10000,
-    time: 60 * sec
+    time: 10 * sec
   }, {
     elems: 1000000,
     maxVal: 10,
-    time: 60 * sec
+    time: 10 * sec
   }
 ]
 
-var benchmarkFns: Array<string | Function> = ['quickSort', 'bubbleSort']
+var benchmarkFns: Array<string | Function> = ['insertionSort', 'selectionSort', 'quickSort', 'bubbleSort']
 
 var benchmark = async (sort: string | Function) => {
   for (var i = 0; i < benchmarkInputs.length; i++) {
@@ -221,6 +221,7 @@ var run = () => {
   
     for (var i = 0; i < sorted.length - 1; i++) {
       if (sorted[i] > sorted[i+1]) {
+        console.log(sorted)
         var payload: SentMessage = {
           result: Results.error,
           message: `this array isn't sorted !`,
